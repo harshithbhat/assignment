@@ -6,43 +6,10 @@ const app = express()
 const url = require('./secret.js');
 const ObjectId = require('mongodb').ObjectId
 const redis = require('redis');
-// const multer = require('multer')
-
+require('dotenv').config()
 
 app.use(bodyParser.json())
 
-
-
-// const multerStorage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       cb(null, "public");
-//     },
-//     filename: (req, file, cb) => {
-//       const ext = file.mimetype.split("/")[1];
-//       cb(null, `files/admin-${file.fieldname}-${Date.now()}.${ext}`);
-//     },
-//   });
-
-  // Multer Filter
-// const multerFilter = (req, file, cb) => {
-
-//     console.log(file.mimetype.split("/")[1])
-//     if (file.mimetype.split("/")[1] === "png") {
-//       cb(null, true);
-//     } else {
-//       cb(new Error("Not a PDF File!!"), false);
-//     }
-//   };
-
-
-//   const upload = multer({
-//     storage: multerStorage,
-//     fileFilter: multerFilter,
-//   });
-
-// app.post('/upladFile',upload.single("myfile"),(req,res)=>{
-//   console.log(res)
-// })
 
 
 const client = new MongoClient(url,{
@@ -230,6 +197,48 @@ client.connect(err => {
 
     })
 
+    const {format} = require('util');
+    const Multer = require('multer');
+    const {Storage} = require('@google-cloud/storage');
+    
+    const storage = new Storage({
+      projectId:'',
+      keyFilename:''
+    });
+    
+    const multer = Multer({
+      storage: Multer.memoryStorage(),
+      limits: {
+        fileSize: 5 * 1024 * 1024, 
+      },
+    });
+
+    const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
+    
+    
+    app.post('/upload', multer.single('file'), (req, res, next) => {
+
+      if (!req.file) {
+        res.status(400).send('No file uploaded.');
+        return;
+      }
+    
+      const blob = bucket.file(req.file.originalname);
+      const blobStream = blob.createWriteStream();
+    
+      blobStream.on('error', err => {
+        next(err);
+      });
+    
+      blobStream.on('finish', () => {
+        const publicUrl = format(
+          `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+        );
+        res.status(200).json(publicUrl);
+      });
+    
+      blobStream.end(req.file.buffer);
+    });
 
 module.exports = app.listen(8000,()=>{
     console.log('server is ready')

@@ -1,0 +1,11 @@
+
+#Directories
+/node_modules
+/public
+
+
+#lock
+package-lock*.*
+
+app1.js
+

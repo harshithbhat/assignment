@@ -214,6 +214,40 @@ client.connect(err => {
 // })
 
 
+
+// const multerStorage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       cb(null, "public");
+//     },
+//     filename: (req, file, cb) => {
+//       const ext = file.mimetype.split("/")[1];
+//       cb(null, `files/admin-${file.fieldname}-${Date.now()}.${ext}`);
+//     },
+//   });
+
+  // Multer Filter
+// const multerFilter = (req, file, cb) => {
+
+//     console.log(file.mimetype.split("/")[1])
+//     if (file.mimetype.split("/")[1] === "png") {
+//       cb(null, true);
+//     } else {
+//       cb(new Error("Not a PDF File!!"), false);
+//     }
+//   };
+
+
+//   const upload = multer({
+//     storage: multerStorage,
+//     fileFilter: multerFilter,
+//   });
+
+// app.post('/upladFile',upload.single("myfile"),(req,res)=>{
+//   console.log(res)
+// })
+
+
+
 app.listen(8000,()=>{
     console.log('server is ready')
 })
