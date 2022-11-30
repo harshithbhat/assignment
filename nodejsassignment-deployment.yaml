@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejsassignment-deployment
+  labels:
+    app: nodejsassignment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejsassignment
+  template:
+    metadata:
+      labels:
+        app: nodejsassignment
+    spec:
+      containers:
+      - name: nodejsassignment
+        image: nodejsassignment
+        ports:
+        - containerPort: 8000
